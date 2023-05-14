@@ -1,6 +1,3 @@
-
-
-
 import requests
 from bs4 import BeautifulSoup as BS
 import sqlite3 as sql
@@ -8,11 +5,9 @@ import sqlite3 as sql
 url = 'https://www.olx.ua/d/uk/list/q-Квартиры/?page=1'
 
 
-houses = list()
-
 count = 2
 
-while count <= 100:
+while count <= 500:
     url = 'https://www.olx.ua/d/uk/list/q-Квартиры/?page=' + str(count)
     
 
@@ -21,17 +16,6 @@ while count <= 100:
 
     name = soup.find_all('h6', class_='css-16v5mdi er34gjf0')
     price = soup.find_all('p', class_='css-10b0gli er34gjf0')
-
-
-
-
-
-
-# Сбор всех ссылок 
-    for el in soup.find_all('a', class_='css-rc5s2u'):
-        link = ('https://www.olx.ua' + el.get('href'))
-    # print (link.split()) # Если пригодиться в будущем
-    # print(link)
 
 
 # New Table
@@ -44,19 +28,11 @@ while count <= 100:
 
     SQL = '''INSERT INTO test (name, price, link) VALUES (?, ?, ?)'''
 
+    for el, name_element, price_element in zip(soup.find_all('a', class_='css-rc5s2u'), name, price):
+        link = 'https://www.olx.ua' + el.get('href')
+        item_name = name_element.text
+        item_price = price_element.text
 
-
-    for i in range(len(price)):
-        item_name = name[i].text
-        item_price = price[i].text
-    
         cursor.execute(SQL, [item_name, item_price, link])
         conn.commit()
-
     count += 1
-
-
-
-
-
-
